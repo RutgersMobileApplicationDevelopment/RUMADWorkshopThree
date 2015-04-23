@@ -7,7 +7,9 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
+import com.parse.ParseUser;
 
 import edu.rutgers.rumad.rumadworkshopthree.R;
 
@@ -21,12 +23,29 @@ public class SeeListActivity extends ActionBarActivity {
         setContentView(R.layout.activity_see_list);
 
         //this adapter queries all Todo items
-        ParseQueryAdapter<ParseObject> adapter = new ParseQueryAdapter<ParseObject>(this,"Todo");
-        //we want the text of the object so this is what it displays
-        adapter.setTextKey("text");
+        ParseQueryAdapter<ParseObject> adapter = new ParseQueryAdapter<ParseObject>(this, new ParseQueryAdapter.QueryFactory<ParseObject>() {
+            @Override
+            public ParseQuery<ParseObject> create() {
 
-        //load objects
-        adapter.loadObjects();
+                //get query of Todo objects
+                ParseQuery query = new ParseQuery("Todo");
+
+                //get current user
+                ParseUser currentUser = ParseUser.getCurrentUser();
+
+                //filter to objects created by this user
+                query.whereEqualTo("userId",currentUser.getObjectId());
+
+                return query;
+
+
+            }
+        });
+                //we want the text of the object so this is what it displays
+                adapter.setTextKey("text");
+
+                //load objects
+                adapter.loadObjects();
 
         //instantiate the listview
         todoList = (ListView)findViewById(R.id.todolist);
